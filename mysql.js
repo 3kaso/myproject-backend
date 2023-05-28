@@ -1,10 +1,14 @@
-const express = require("express"); //import express
+//importing installed modules
+const express = require("express");
 const cors = require("cors");
-const app = express();
 const mysql = require("mysql");
+
+//creating an instance of express, enabling CORS and parsing JSON
+const app = express();
 app.use(cors());
 app.use(express.json());
 
+//Creating a connection to the MySQL database
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -12,9 +16,7 @@ const db = mysql.createConnection({
   database: "crms_dbb",
 });
 
-
-//users_table requests
-
+//Handling requests GET request to fetch all users
 app.get("/user", (req, res) => {
   const SelectQuery = "select * from user";
   db.query(SelectQuery, (err, data) => {
@@ -24,6 +26,7 @@ app.get("/user", (req, res) => {
   });
 });
 
+// Handling POST requesrs to creae a new user
 app.post("/createuser", (req, res) => {
   const insertQuery = `insert into user(fname,lname,email,password,police_ID)
     values(?)`;
@@ -37,15 +40,7 @@ app.post("/createuser", (req, res) => {
   });
 });
 
-///
-
-
-
-
-
-
-//crimes_recods_table requests
-
+// Handling GET request to fetch all crime records
 app.get("/getCrimeRecods", (req, res) => {
   const SelectQuery = "select * from crimes_records";
   db.query(SelectQuery, (err, data) => {
@@ -55,8 +50,7 @@ app.get("/getCrimeRecods", (req, res) => {
   });
 });
 
-
-//create crime record
+// Handling POST request to create a new crime record
 app.post("/creatCrimeRecord", (req, res) => {
   const insertQuery = `insert into crimes_records(fname,lname,gender,age,dob,address,occupation,nationality,tribe,village,chief,district,contact,offence,date_of_offence,date_reported,date_of_arrest,value_of_property_stolen,court_date,crime_location,image,statement)
     values(?)`;
@@ -70,18 +64,18 @@ app.post("/creatCrimeRecord", (req, res) => {
   });
 });
 
-
-//update crime records
-app.put('/updatecrimerecords', (req, res) => {
-  const { longitude, latitude ,location} = req.body;
+// Handling PUT request to update crime records
+app.put("/updatecrimerecords", (req, res) => {
+  const { longitude, latitude, location } = req.body;
   const sql = `UPDATE crimes_records SET latitude = ${latitude}, longitude = ${longitude} WHERE crime_location = '${location}'`;
 
   db.query(sql, (error, results, fields) => {
     if (error) throw error;
-    res.send({ message: 'User age and surname updated successfully!' });
+    res.send({ message: "User age and surname updated successfully!" });
   });
 });
 
+// Handling PUT request to update a specific crime record
 app.put("/update/:userId", (req, res) => {
   const id = req.params.userId;
   console.log("updated " + req.body);
@@ -104,29 +98,7 @@ app.put("/update/:userId", (req, res) => {
   });
 });
 
-// app.put("/user/:name", (req, res) => {
-//   const id = req.params.userId;
-//   console.log("updated " + req.body);
-//   const data = req.body;
-//   const updateQuery =
-//     "update crimes_records set " +
-//     Object.keys(data)
-//       .map((k) => `${k} = ?`)
-//       .join(",") +
-//     " where id='" +
-//     id +
-//     "'";
-//   console.log(updateQuery);
-//   db.query(updateQuery, [...Object.values(data)], (err, out) => {
-//     console.log(err, out);
-//     if (err) return res.json({ error: err.message });
-//     else {
-//       return res.json({ data: out });
-//     }
-//   });
-// });
-
-//delete crime records
+// Handling DELETE request to delete a specific crime record
 app.delete("/deletecrimerecord/:userId", (req, res) => {
   const id = req.params.userId;
   console.log("deleting " + id, req.body);
@@ -136,19 +108,11 @@ app.delete("/deletecrimerecord/:userId", (req, res) => {
   db.query(deletQuery, [id], (err, data) => {
     console.log(err, data);
     if (err) return res.json({ error: err.sqlMessage });
-    else res.json({data})
-  })
-})
+    else res.json({ data });
+  });
+});
 
-
-
-
-
-//
-
+//server listening on port 8001
 app.listen(8001, () => {
   console.log("listening on port 8001");
 });
-
-
-
